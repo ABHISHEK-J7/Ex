@@ -1,0 +1,30 @@
+import pandas as pd
+import numpy as np
+
+data = pd.read_csv("ws.csv")
+concepts = np.array(data.iloc[:, :-1])
+target = np.array(data.iloc[:, -1])
+
+def learn(concepts, target):
+    specific_h = concepts[0].copy()
+    general_h = [["?" for _ in range(len(specific_h))] for _ in range(len(specific_h))]
+
+    for i, val in enumerate(concepts):
+        if target[i] == "Yes":
+            for j in range(len(specific_h)):
+                if val[j] != specific_h[j]:
+                    specific_h[j] = "?"
+                    general_h[j][j] = "?"
+        elif target[i] == "No":
+            for j in range(len(specific_h)):
+                if val[j] != specific_h[j]:
+                    general_h[j][j] = specific_h[j]
+                else:
+                    general_h[j][j] = "?"
+
+    general_h = [g for g in general_h if g != ["?"] * len(specific_h)]
+    return specific_h, general_h
+
+s_final, g_final = learn(concepts, target)
+print("Final Specific_h:\n", s_final)
+print("Final General_h:\n", g_final)
